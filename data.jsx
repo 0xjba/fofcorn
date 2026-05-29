@@ -64,7 +64,7 @@ window.FOFCORN_DATA = (() => {
     {
       id: 'cover',
       title: 'Cover',
-      kicker: 'Forest journal · started 11·iii·24',
+      kicker: 'Favourite · started 11·iii·24',
       hed: 'Field notebook',
       sub: 'A working record of the wood behind the house.',
       standFirst: 'Begun the second spring after we moved out here. To be kept until the back of it.',
