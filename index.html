@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#efe5d0">
+<title>fofcorn</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='8' cy='10' r='5.4' fill='%23fbf2d8' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='17' cy='8' r='4.8' fill='%23fff3c4' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='18' cy='15' r='4.8' fill='%23fbf2d8' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='10' cy='17' r='4.3' fill='%23fff3c4' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='13' cy='13' r='2.4' fill='%23e2a73a' stroke='%2315110d' stroke-width='1.1'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,600;1,800&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/dev/index.css">
+<script>window.EXCALIDRAW_ASSET_PATH = "https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/";</script>
+
+<script type="importmap">
+{ "imports": {
+  "react":             "https://esm.sh/react@18.3.1",
+  "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+  "react-dom":         "https://esm.sh/react-dom@18.3.1",
+  "react-dom/client":  "https://esm.sh/react-dom@18.3.1/client",
+  "@tiptap/react":               "https://esm.sh/@tiptap/react@2.11.7?external=react,react-dom",
+  "@tiptap/core":                "https://esm.sh/@tiptap/core@2.11.7",
+  "@tiptap/pm/model":            "https://esm.sh/@tiptap/pm@2.11.7/model",
+  "@tiptap/starter-kit":         "https://esm.sh/@tiptap/starter-kit@2.11.7",
+  "@tiptap/extension-underline": "https://esm.sh/@tiptap/extension-underline@2.11.7",
+  "@tiptap/extension-link":      "https://esm.sh/@tiptap/extension-link@2.11.7",
+  "@tiptap/extension-image":     "https://esm.sh/@tiptap/extension-image@2.11.7",
+  "@tiptap/extension-highlight": "https://esm.sh/@tiptap/extension-highlight@2.11.7",
+  "@tiptap/extension-task-list": "https://esm.sh/@tiptap/extension-task-list@2.11.7",
+  "@tiptap/extension-task-item": "https://esm.sh/@tiptap/extension-task-item@2.11.7",
+  "@tiptap/extension-placeholder":     "https://esm.sh/@tiptap/extension-placeholder@2.11.7",
+  "@tiptap/extension-character-count": "https://esm.sh/@tiptap/extension-character-count@2.11.7"
+}}
+</script>
+
+<style>
+  html, body { margin: 0; padding: 0; background: #efe5d0; height:100vh; overflow:hidden; }
+  @keyframes vCurlShimmer {
+    0%   { transform: translateX(0)   rotate(0deg);  opacity:.55; }
+    50%  { transform: translateX(-6px) rotate(-1.2deg); opacity:.9; }
+    100% { transform: translateX(0)   rotate(0deg);  opacity:.55; }
+  }
+  .v-curl { animation: vCurlShimmer 3.4s ease-in-out infinite; transform-origin: bottom right; }
+  #boot { display:flex; align-items:center; justify-content:center; height:100vh;
+          font-family:'IBM Plex Mono', monospace; font-size:11px; color:#807464;
+          letter-spacing:.18em; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<div id="root"><div id="boot">loading fofcorn…</div></div>
+
+<script type="module">
+  // ── Crypto Helper for Token Security ──
+  window.fcCrypto = {
+    async deriveKey(pin) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(pin.padStart(4,'0')), {name: 'PBKDF2'}, false, ['deriveKey']);
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode('fofcorn-salt-v1'), iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    },
+    async encrypt(text, pin) {
+      const key = await this.deriveKey(pin);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const enc = new TextEncoder();
+      const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(text));
+      return btoa(JSON.stringify({ iv: Array.from(iv), cipher: Array.from(new Uint8Array(cipher)) }));
+    },
+    async decrypt(blob, pin) {
+      const key = await this.deriveKey(pin);
+      const { iv, cipher } = JSON.parse(atob(blob));
+      const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(iv) }, key, new Uint8Array(cipher));
+      return new TextDecoder().decode(dec);
+    }
+  };
+
+  (async () => {
+    const boot = document.getElementById('boot');
+    const step = (m) => { if (boot) boot.textContent = m; };
+
+    try {
+      step('loading react…');
+      const React        = (await import('react')).default;
+      const ReactDOMNs   = await import('react-dom');
+      const ReactDOM     = ReactDOMNs.default || ReactDOMNs;
+      const { createRoot } = await import('react-dom/client');
+      window.React = React;
+      ReactDOM.createRoot = createRoot;
+      window.ReactDOM = ReactDOM;
+
+      step('loading tiptap…');
+      const [TR, PMModel, StarterKit, Underline, Link, ImageExt, Highlight, TaskList, TaskItem, Placeholder, CharacterCount] = await Promise.all([
+        import('@tiptap/react'), import('@tiptap/pm/model'), import('@tiptap/starter-kit'),
+        import('@tiptap/extension-underline'), import('@tiptap/extension-link'), import('@tiptap/extension-image'),
+        import('@tiptap/extension-highlight'), import('@tiptap/extension-task-list'), import('@tiptap/extension-task-item'),
+        import('@tiptap/extension-placeholder'), import('@tiptap/extension-character-count'),
+      ]);
+      window.tiptap = {
+        useEditor: TR.useEditor, EditorContent: TR.EditorContent, DOMSerializer: PMModel.DOMSerializer,
+        StarterKit: StarterKit.default || StarterKit, Underline: Underline.default || Underline,
+        Link: Link.default || Link, Image: ImageExt.default || ImageExt, Highlight: Highlight.default || Highlight,
+        TaskList: TaskList.default || TaskList, TaskItem: TaskItem.default || TaskItem,
+        Placeholder: Placeholder.default || Placeholder, CharacterCount: CharacterCount.default || CharacterCount,
+      };
+
+      // ── IndexedDB Compiler Cache ──
+      const db = await new Promise(r => {
+        const q = indexedDB.open('fc_compiler', 1);
+        q.onupgradeneeded = () => q.result.createObjectStore('cache');
+        q.onsuccess = () => r(q.result);
+      });
+      const getCache = (k) => new Promise(r => { const q = db.transaction('cache').objectStore('cache').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); });
+      const setCache = (k, v) => new Promise(r => { const q = db.transaction('cache', 'readwrite').objectStore('cache').put(v, k); q.onsuccess = () => r(); });
+
+      const files = [
+        'wire.jsx', 
+        'data.jsx', 
+        'shared.jsx', 
+        'settings.jsx', 
+        'library.jsx', 
+        'notebook.jsx', 
+        'sticky.jsx', 
+        'scratchpad.jsx', 
+        'onboarding.jsx', 
+        'lock.jsx',     // <--- ADDED HERE
+        'main.jsx'
+      ];
+      
+      for (const f of files) {
+        step('loading ' + f.replace('.jsx', '') + '…');
+        const src = await (await fetch(f, { cache: 'no-cache' })).text();
+        
+        let h = 0; for(let i = 0; i < src.length; i++) h = Math.imul(31, h) + src.charCodeAt(i) | 0;
+        const cacheKey = f + '_' + h;
+        
+        let code = await getCache(cacheKey);
+        
+        if (!code) {
+          if (!window.Babel) {
+            step('loading babel compiler…');
+            await new Promise(res => { const s = document.createElement('script'); s.src = 'https://unpkg.com/@babel/standalone@7.29.0/babel.min.js'; s.onload = res; document.head.appendChild(s); });
+          }
+          step('compiling ' + f.replace('.jsx', '') + '…');
+          code = window.Babel.transform(src, { presets: ['react'], sourceMaps: false }).code;
+          await setCache(cacheKey, code);
+        }
+        
+        /* eslint-disable no-new-func */
+        (new Function(code))();
+      }
+
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+    } catch (e) {
+      const boot = document.getElementById('boot');
+      if (boot) {
+        boot.innerHTML = '<div style="max-width:520px;text-align:center;padding:24px;line-height:1.7;letter-spacing:.04em;text-transform:none">' +
+          '<div style="color:#b71f1f;letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:10px">boot failed</div>' +
+          '<div style="font-style:italic;color:#3a3026">' + (e && e.message ? e.message : 'unknown error') + '</div>' +
+        '</div>';
+      }
+      console.error('[fofcorn boot]', e);
+    }
+  })();
+</script>
+</body>
+</html>

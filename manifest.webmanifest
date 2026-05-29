@@ -1,0 +1,19 @@
+{
+  "name": "fofcorn",
+  "short_name": "fofcorn",
+  "description": "A library of notes — stickies, notebooks, scratchpads. GitHub is the database.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#efe5d0",
+  "theme_color": "#efe5d0",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect width='26' height='26' fill='%23efe5d0'/%3E%3Ccircle cx='8' cy='10' r='5.4' fill='%23fbf2d8' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='17' cy='8' r='4.8' fill='%23fff3c4' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='18' cy='15' r='4.8' fill='%23fbf2d8' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='10' cy='17' r='4.3' fill='%23fff3c4' stroke='%2315110d' stroke-width='1.1'/%3E%3Ccircle cx='13' cy='13' r='2.4' fill='%23e2a73a' stroke='%2315110d' stroke-width='1.1'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
