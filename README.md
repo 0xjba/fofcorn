@@ -32,9 +32,7 @@ A typesetter-style toolbar sits above every editor. Notebooks get the full set; 
 - **Links** — add a URL to selected text
 - **Images** — drop in a picture (automatically resized to keep notes light)
 - **Sketch** — open the drawing canvas right inside a note
-
-### Paste a tweet, get a card
-Paste an X/Twitter post link into a notebook and it turns into an embedded tweet card automatically — the same kind of preview you'd see in a chat app.
+- - **Tweets** — embedded tweet card automatically
 
 ---
 
