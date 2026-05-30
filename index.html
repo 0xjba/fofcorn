@@ -44,13 +44,33 @@
     100% { transform: translateX(0)   rotate(0deg);  opacity:.55; }
   }
   .v-curl { animation: vCurlShimmer 3.4s ease-in-out infinite; transform-origin: bottom right; }
-  #boot { display:flex; align-items:center; justify-content:center; height:100vh;
+  
+  @keyframes pop {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.15) rotate(-3deg); }
+    50% { transform: scale(1) rotate(0deg); }
+    75% { transform: scale(1.15) rotate(3deg); }
+  }
+  .popcorn-icon { animation: pop 1.4s ease-in-out infinite; margin-bottom: 16px; }
+
+  #boot { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;
           font-family:'IBM Plex Mono', monospace; font-size:11px; color:#807464;
           letter-spacing:.18em; text-transform:uppercase; }
 </style>
 </head>
 <body>
-<div id="root"><div id="boot">loading fofcorn…</div></div>
+<div id="root">
+  <div id="boot">
+    <svg class="popcorn-icon" width="46" height="46" viewBox="0 0 26 26">
+      <circle cx="8" cy="10" r="5.4" fill="#fbf2d8" stroke="#15110d" stroke-width="1.1"/>
+      <circle cx="17" cy="8" r="4.8" fill="#fff3c4" stroke="#15110d" stroke-width="1.1"/>
+      <circle cx="18" cy="15" r="4.8" fill="#fbf2d8" stroke="#15110d" stroke-width="1.1"/>
+      <circle cx="10" cy="17" r="4.3" fill="#fff3c4" stroke="#15110d" stroke-width="1.1"/>
+      <circle cx="13" cy="13" r="2.4" fill="#e2a73a" stroke="#15110d" stroke-width="1.1"/>
+    </svg>
+    <div>popping fofcorns…</div>
+  </div>
+</div>
 
 <script type="module">
   // ── Crypto Helper for Token Security ──
@@ -76,8 +96,8 @@
   };
 
   (async () => {
-    const boot = document.getElementById('boot');
-    const step = (m) => { if (boot) boot.textContent = m; };
+    // Silence the step text logs so the animation stays clean
+    const step = () => {}; 
 
     try {
       step('loading react…');
@@ -123,7 +143,7 @@
         'sticky.jsx', 
         'scratchpad.jsx', 
         'onboarding.jsx', 
-        'lock.jsx',     // <--- ADDED HERE
+        'lock.jsx',
         'main.jsx'
       ];
       
