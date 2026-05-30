@@ -57,6 +57,15 @@
           font-family:'IBM Plex Mono', monospace; font-size:11px; color:#807464;
           letter-spacing:.18em; text-transform:uppercase; }
 </style>
+
+<script>
+  window.deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    window.deferredInstallPrompt = e;
+  });
+</script>
+
 </head>
 <body>
 <div id="root">
