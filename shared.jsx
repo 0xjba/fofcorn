@@ -241,7 +241,9 @@ window.Sidebar = function Sidebar({ view, collections, notes, onNavigate, onSele
     .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const startOfToday = (() => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); })();
   const todayNotes = sortedByUpdate.filter(n => n.updatedAt >= startOfToday);
-  const activity = sortedByUpdate.slice(0, 3).map(n => ({
+  
+  // Only display notes actually modified today to ensure activity timestamps don't look old/outdated
+  const activity = todayNotes.slice(0, 3).map(n => ({
     t: window.fofTime.relativeShort(n.updatedAt),
     k: n.pinned ? 'pinned' : 'saved',
     what: (n.title || 'Untitled').replace(/[.\s—]+$/, ''),
