@@ -132,7 +132,7 @@ window.FOFCORN_DATA = (() => {
   const NOTES = [
     {
       id: 'demo-sticky',
-      col: 'forest',
+      col: 'favourite',
       type: 'sticky',
       title: 'Mushroom haul, saturday.',
       pinned: true,
@@ -144,7 +144,7 @@ window.FOFCORN_DATA = (() => {
     },
     {
       id: 'demo-notebook',
-      col: 'forest',
+      col: 'favourite',
       type: 'notebook',
       title: 'Field notebook',
       subtitle: 'A working record of the wood behind the house.',
@@ -158,7 +158,7 @@ window.FOFCORN_DATA = (() => {
     },
     {
       id: 'demo-scratchpad',
-      col: 'forest',
+      col: 'favourite',
       type: 'scratchpad',
       title: 'Trail map — north loop',
       pinned: false,
