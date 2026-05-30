@@ -203,15 +203,13 @@ window.BroadShell = function BroadShell({ children }) {
 
 window.PopcornIcon = function PopcornIcon({ size = 26 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 26 26" aria-label="fofcorn" style={{ flex: '0 0 auto', display: 'block' }}>
-      {/* the popped cluster — cream and butter circles */}
-      <circle cx="8"  cy="10" r="5.4" fill="#fbf2d8" stroke="#15110d" strokeWidth="1.1"/>
-      <circle cx="17" cy="8"  r="4.8" fill="#fff3c4" stroke="#15110d" strokeWidth="1.1"/>
-      <circle cx="18" cy="15" r="4.8" fill="#fbf2d8" stroke="#15110d" strokeWidth="1.1"/>
-      <circle cx="10" cy="17" r="4.3" fill="#fff3c4" stroke="#15110d" strokeWidth="1.1"/>
-      {/* the kernel base/core */}
-      <circle cx="13" cy="13" r="2.4" fill="#e2a73a" stroke="#15110d" strokeWidth="1.1"/>
-    </svg>
+    <img 
+      src="./logo.png" 
+      width={size} 
+      height={size} 
+      alt="logo" 
+      style={{ flex: '0 0 auto', display: 'block', objectFit: 'contain' }} 
+    />
   );
 };
 
