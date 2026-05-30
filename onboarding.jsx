@@ -12,7 +12,9 @@ function parseRepoInfo(input) {
 
 window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
   const [step, setStep] = React.useState(1);
-  const [installPrompt, setInstallPrompt] = React.useState(null);
+
+  // Grab the event if it already fired before this component even loaded
+  const [installPrompt, setInstallPrompt] = React.useState(window.deferredInstallPrompt || null);
 
   /* ── step 4 completion payloads ── */
   const [finalPatch, setFinalPatch] = React.useState(null);
@@ -21,8 +23,10 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
   React.useEffect(() => {
     const handler = (e) => {
       e.preventDefault();
+      window.deferredInstallPrompt = e;
       setInstallPrompt(e);
     };
+    // Also actively listen in case it fires late
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
@@ -78,7 +82,6 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
       let ownerToCheck = repoMode === 'create' ? u.login : parsedOwner;
       const repoToCheck  = repoMode === 'create' ? repoName.trim() : parsedRepo;
 
-      // Auto-fill owner if they only pasted the repo name
       if (repoMode === 'existing' && !ownerToCheck) {
          ownerToCheck = u.login;
          setRepoUrl(`github.com/${u.login}/${repoToCheck}`);
@@ -122,8 +125,11 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
   const handleInstall = async () => {
     if (installPrompt) {
       installPrompt.prompt();
-      await installPrompt.userChoice;
-      setInstallPrompt(null);
+      const choice = await installPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        setInstallPrompt(null);
+        window.deferredInstallPrompt = null;
+      }
       handleFinishOnboarding();
     }
   };
@@ -273,7 +279,7 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
                   <div style={{ padding: '16px', background: 'var(--paper2)', border: '1px solid var(--line)', marginBottom: 18 }}>
                     <ul className="brod-body" style={{ fontSize: 13, margin: 0, paddingLeft: 18, color: 'var(--ink2)', lineHeight: 1.7 }}>
                       <li><strong>iOS / iPad:</strong> Tap Share, then "Add to Home Screen"</li>
-                      <li><strong>Desktop:</strong> Click the install icon in your address bar (if available)</li>
+                      <li><strong>Desktop:</strong> Click the install icon in your address bar</li>
                       <li><strong>Android:</strong> Tap the browser menu, then "Install app"</li>
                     </ul>
                   </div>
