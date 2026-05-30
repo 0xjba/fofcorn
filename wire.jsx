@@ -407,7 +407,46 @@ window.GitHub = (function () {
     });
   }
 
-  return { whoami, createRepo, getRepo, pushAll, pushOne, pullAll };
+  // Auto-Sync deletion handler (adds `sha: null` to tree)
+  async function deleteOne(settings, note, collection, onLog) {
+    return enqueue(async () => {
+      const log = (m) => { try { onLog && onLog(m); } catch (_) {} };
+      const { token, owner, repo, branch } = settings.github;
+      if (!token || !owner || !repo) throw new Error('GitHub not configured.');
+      const br = branch || 'main';
+
+      let baseTree = null, parents = [];
+      const refRes = await call(token, 'GET', `/repos/${owner}/${repo}/git/ref/heads/${br}`);
+      if (!refRes.ok) return; // If branch doesn't exist, there is nothing to delete
+      
+      const baseCommit = (await refRes.json()).object.sha;
+      parents = [baseCommit];
+      baseTree = (await (await call(token, 'GET', `/repos/${owner}/${repo}/git/commits/${baseCommit}`)).json()).tree.sha;
+
+      const colSlug = window.slugify((collection || {}).name || 'uncategorised');
+      const path = `notes/${colSlug}/${window.slugify(note.title || note.id)}-${note.id.slice(-6)}.json`;
+
+      const treeEntries = [{ path, mode: '100644', type: 'blob', sha: null }];
+
+      const tr = await call(token, 'POST', `/repos/${owner}/${repo}/git/trees`, { base_tree: baseTree, tree: treeEntries });
+      if (!tr.ok) throw new Error('Tree failed (' + tr.status + ').');
+
+      const cm = await call(token, 'POST', `/repos/${owner}/${repo}/git/commits`, {
+        message: 'fofcorn: delete ' + (note.title || note.id),
+        tree: (await tr.json()).sha, parents,
+      });
+      if (!cm.ok) throw new Error('Commit failed (' + cm.status + ').');
+      
+      const newSha = (await cm.json()).sha;
+      const ref = await call(token, 'PATCH', `/repos/${owner}/${repo}/git/refs/heads/${br}`, { sha: newSha });
+      if (!ref.ok) throw new Error('Ref update failed (' + ref.status + ').');
+
+      log('deleted ' + path);
+      return { path, commit: newSha };
+    });
+  }
+
+  return { whoami, createRepo, getRepo, pushAll, pushOne, pullAll, deleteOne };
 })();
 
 
