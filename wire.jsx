@@ -222,6 +222,7 @@ window.GitHub = (function () {
     const r = await fetch(base + path, {
       method,
       headers: headers(token),
+      cache: 'no-store', // This stops the browser from reusing old branch SHAs!
       body: body ? JSON.stringify(body) : undefined,
     });
     return r;
