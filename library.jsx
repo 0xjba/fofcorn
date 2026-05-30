@@ -102,13 +102,13 @@ window.LibraryView = function LibraryView({ view, collections, notes, tab, onTab
             )}
           </div>
 
-          {/* tabs + sort + new */}
+    {/* tabs + sort + new */}
           <div style={{ display: 'flex', alignItems: 'center', padding: '8px 0 6px', borderBottom: '1px solid var(--ink)', flexWrap: 'wrap', gap: 12 }}>
             <div style={{ display: 'flex' }}>
               {[
                 ['sticky','Stickies'], ['notebook','Notebooks'], ['scratchpad','Scratchpads']
               ].map(([k, l]) => (
-                <button key={k} className={'tab' + (tab===k?' active':'')} onClick={() => onTab(k)} disabled={counts[k]===0}>
+                <button key={k} className={'tab' + (tab===k?' active':'')} onClick={() => onTab(k)}>
                   {l}<span className="ct">{counts[k]}</span>
                 </button>
               ))}
