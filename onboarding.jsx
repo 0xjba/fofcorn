@@ -1,7 +1,8 @@
-/* onboarding.jsx — wired three-step setup, REPO FIRST.
+/* onboarding.jsx — wired four-step setup, REPO FIRST.
    Step 1: configure & create the repo on github.com (no token needed yet)
    Step 2: create a fine-grained token scoped to that repo, paste & verify
-   Step 3: encrypt the token and set sync preferences */
+   Step 3: encrypt the token and set sync preferences 
+   Step 4: install PWA / App experience */
 
 function parseRepoInfo(input) {
   const parts = input.trim().replace(/\.git\/?$/, '').replace(/\/$/, '').split('/');
@@ -11,6 +12,20 @@ function parseRepoInfo(input) {
 
 window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
   const [step, setStep] = React.useState(1);
+  const [installPrompt, setInstallPrompt] = React.useState(null);
+
+  /* ── step 4 completion payloads ── */
+  const [finalPatch, setFinalPatch] = React.useState(null);
+  const [finalToken, setFinalToken] = React.useState(null);
+
+  React.useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   /* ── repo (step 1) ── */
   const [repoMode, setRepoMode]         = React.useState('create');
@@ -78,13 +93,13 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
     } finally { setBusy(false); }
   };
 
-  const finish = async () => {
+  const proceedToInstall = async () => {
     if (pin.length < 4) return;
     setBusy(true);
     const rawToken = token.trim();
     const encryptedToken = await window.fcCrypto.encrypt(rawToken, pin);
     
-    onComplete({
+    setFinalPatch({
       github: {
         encryptedToken,
         owner: effectiveOwnerName,
@@ -93,7 +108,24 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
         login: user ? user.login : null,
       },
       autoSync,
-    }, rawToken);
+    });
+    setFinalToken(rawToken);
+    
+    setBusy(false);
+    setStep(4);
+  };
+
+  const handleFinishOnboarding = () => {
+    onComplete(finalPatch, finalToken);
+  };
+
+  const handleInstall = async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      setInstallPrompt(null);
+      handleFinishOnboarding();
+    }
   };
 
   const nextDisabled = step === 1 && (repoMode === 'create' ? !repoName.trim() : !parsedRepo.trim());
@@ -108,16 +140,17 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
             <span className="brod-disp" style={{ fontSize: 46, fontWeight: 800, letterSpacing: '-.01em', lineHeight: 1 }}>fofcorn</span>
           </div>
           <div className="page" style={{ width: '100%', padding: '30px 38px', background: 'var(--paper3)' }}>
-            <div className="kicker">Setup · {step} of 3</div>
+            <div className="kicker">Setup · {step} of 4</div>
             <h1 className="brod-disp" style={{ margin: '6px 0 6px', fontSize: 30, fontWeight: 800, fontStyle: 'italic', lineHeight: 1.1 }}>
               {step === 1 ? <>Pick a GitHub repo to <span style={{ color: 'var(--red)' }}>store your notes</span>.</>
               : step === 2 ? <>Create a token <span style={{ color: 'var(--red)' }}>scoped to that repo</span>.</>
-              :              <>Set a PIN <span style={{ color: 'var(--red)' }}>for your notes</span>.</>}
+              : step === 3 ? <>Set a PIN <span style={{ color: 'var(--red)' }}>for your notes</span>.</>
+              : <>Install fofcorn <span style={{ color: 'var(--red)' }}>as an app</span>.</>}
             </h1>
             <hr className="rule-red-1" style={{ margin: '18px 0' }} />
 
             <div style={{ display: 'flex', gap: 18, marginBottom: 22, fontSize: 11, letterSpacing: '.16em', textTransform: 'uppercase', fontWeight: 600 }}>
-              {[['1','Repo'], ['2','Token'], ['3','PIN']].map(([n, l]) => (
+              {[['1','Repo'], ['2','Token'], ['3','PIN'], ['4','App']].map(([n, l]) => (
                 <span key={n} style={{ color: step >= +n ? 'var(--red)' : 'var(--ink3)', display: 'flex', alignItems: 'center', gap: 7 }}>
                   <span style={{ width: 20, height: 20, borderRadius: '50%', display: 'inline-grid', placeItems: 'center', color: step >= +n ? '#fff' : 'var(--ink3)', border: '1px solid currentColor', fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: step >= +n ? 'var(--red)' : 'transparent' }}>{step > +n ? '✓' : n}</span>
                   {l}
@@ -221,7 +254,34 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
 
                 <div style={{ display: 'flex', gap: 10, marginTop: 18, alignItems: 'center' }}>
                   <button onClick={() => setStep(2)} style={ghostBtn}>‹ back</button>
-                  <button onClick={finish} disabled={pin.length < 4 || busy} style={primaryBtn(pin.length < 4 || busy)}>{busy ? 'Saving...' : 'Done ✓'}</button>
+                  <button onClick={proceedToInstall} disabled={pin.length < 4 || busy} style={primaryBtn(pin.length < 4 || busy)}>{busy ? 'Saving...' : 'Next ›'}</button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div>
+                <div className="brod-body" style={{ fontSize: 13, color: 'var(--ink2)', marginBottom: 14, lineHeight: 1.55 }}>
+                  For the best experience, install fofcorn to your device. It works offline, opens in its own window, and feels like a native app.
+                </div>
+                
+                {installPrompt ? (
+                  <div style={{ padding: '18px', background: 'var(--paper2)', border: '1px solid var(--line)', marginBottom: 18, textAlign: 'center' }}>
+                    <button onClick={handleInstall} style={primaryBtn(false)}>Install App</button>
+                  </div>
+                ) : (
+                  <div style={{ padding: '16px', background: 'var(--paper2)', border: '1px solid var(--line)', marginBottom: 18 }}>
+                    <ul className="brod-body" style={{ fontSize: 13, margin: 0, paddingLeft: 18, color: 'var(--ink2)', lineHeight: 1.7 }}>
+                      <li><strong>iOS / iPad:</strong> Tap Share, then "Add to Home Screen"</li>
+                      <li><strong>Desktop:</strong> Click the install icon in your address bar (if available)</li>
+                      <li><strong>Android:</strong> Tap the browser menu, then "Install app"</li>
+                    </ul>
+                  </div>
+                )}
+                
+                <div style={{ display: 'flex', gap: 10, marginTop: 18, alignItems: 'center' }}>
+                  <span style={{ flex: 1 }}></span>
+                  <button onClick={handleFinishOnboarding} style={primaryBtn(false)}>Open fofcorn ›</button>
                 </div>
               </div>
             )}
