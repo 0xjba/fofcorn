@@ -213,9 +213,21 @@ function App() {
   };
 
   const deleteNote = (id) => {
+    // Grab the note details before it is destroyed so GitHub knows what to delete
+    const theNote = notes.find(n => n.id === id);
+    const theCol = collections.find(c => c.id === (theNote ? theNote.col : null));
+
+    // 1. Optimistic Local UI Deletion
     setNotes(prev => prev.filter(n => n.id !== id));
     if (openNoteId === id) setOpenNoteId(null);
     window.Store.delBody(id).catch(() => {});
+
+    // 2. Fire-and-forget remote Auto-Sync
+    if (sessionToken && theNote) {
+      const authSettings = { ...settings, github: { ...settings.github, token: sessionToken } };
+      window.GitHub.deleteOne(authSettings, theNote, theCol)
+        .catch(err => console.error("Failed to delete from GitHub", err));
+    }
   };
 
   /* ─── collections ─── */
