@@ -287,7 +287,7 @@ window.OnboardingView = function OnboardingView({ onComplete, onSkip }) {
                 
                 <div style={{ display: 'flex', gap: 10, marginTop: 18, alignItems: 'center' }}>
                   <span style={{ flex: 1 }}></span>
-                  <button onClick={handleFinishOnboarding} style={primaryBtn(false)}>Open fofcorn ›</button>
+                  <button onClick={handleFinishOnboarding} style={primaryBtn(false)}>Skip ›</button>
                 </div>
               </div>
             )}
