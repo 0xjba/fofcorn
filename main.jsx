@@ -14,7 +14,7 @@ function App() {
   const [sessionToken, setSessionToken] = useState(() => sessionStorage.getItem('fc_session_token') || null);
   
   const [view, setView]               = useState({ kind: 'home' });
-  const [tab,  setTab]                = useState('notebook');
+  const [tab,  setTab]                = useState('sticky');
   const [openNoteId, setOpenNoteId]   = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettings, setShowSettings] = useState(false);
@@ -326,7 +326,7 @@ function pickDefaultTab(notes, view) {
     scratchpad: scoped.filter(n => n.type === 'scratchpad').length,
   };
   let best = 'sticky', bestN = -1;
-  for (const k of ['notebook', 'sticky', 'scratchpad']) {
+  for (const k of ['sticky', 'notebook', 'scratchpad']) {
     if (counts[k] > bestN) { best = k; bestN = counts[k]; }
   }
   return best;
