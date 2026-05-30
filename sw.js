@@ -2,7 +2,7 @@
    Implements Stale-While-Revalidate for local files to ensure instant offline boot 
    while keeping the app updated. Never caches external APIs. */
 
-const CACHE = 'fofcorn-v3';
+const CACHE = 'fofcorn-v4';
 const SHELL = [
   './',
   './index.html',
